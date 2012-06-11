@@ -6,38 +6,43 @@
          merge/2,
          delete_min/1]).
 
-new() -> [].
+new() -> empty.
 
-find_min([]) ->
+find_min(empty) ->
     {error, empty};
 
 find_min({Elem,_SubHeap}) ->
     {ok, Elem}.
     
 insert(Heap, Data) ->
-    merge(Heap, {Data, []}).
+    merge(Heap, {Data, empty}).
 
 from_list(Items) ->
-    lists:foldl(fun(Item, Heap) -> insert(Heap, Item)  end, new(), Items).
+    lists:foldl(fun(Item, Heap) -> insert(Heap, Item) end, new(), Items).
 
-merge(Heap1, []) ->
+merge(Heap1, empty) ->
     Heap1;
-merge([], Heap2) ->
+merge(empty, Heap2) ->
     Heap2;
 merge({E1, SH1}, {E2, SH2}) ->
     if
         E1 < E2 ->
-            {E1, [{E2, SH2} | SH1]};
+            {E1, [{E2, SH2} | to_list(SH1)]};
         true ->
-            {E2, [{E1, SH1} | SH2]}
+            {E2, [{E1, SH1} | to_list(SH2)]}
     end.
+
+to_list(empty) -> [];
+to_list(L) -> L.
 
 delete_min([]) ->
     {error, empty};
+delete_min({_Elem, empty}) ->
+    {ok, empty};
 delete_min({_Elem, SubHeaps}) ->
     {ok, merge_pairs(SubHeaps)}.
 
-merge_pairs([]) -> [];
+merge_pairs([]) -> empty;
 
 merge_pairs([SubHeap]) -> SubHeap;
 
