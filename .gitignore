@@ -3,8 +3,4 @@ deps
 priv
 *.o
 *.beam
-<<<<<<< HEAD
 *.plt
-=======
-*.plt
->>>>>>> 5a9b7868bc56fde273406ec734bc8d8d489d70bb
