@@ -1,4 +1,4 @@
--module(pairheap_tests).
+-module(pairheap_test).
 -include_lib("eunit/include/eunit.hrl").
 
 make_random_list(N) ->
