@@ -4,7 +4,8 @@
          insert/2,
          from_list/1,
          merge/2,
-         delete_min/1]).
+         delete_min/1,
+         empty/1]).
 
 new() -> empty.
 
@@ -43,10 +44,13 @@ delete_min({_Elem}) ->
 delete_min({_Elem, SubHeaps}) ->
     {ok, merge_pairs(SubHeaps)}.
 
+empty(empty) ->
+    true;
+empty(_Other) ->
+    false.
+
 merge_pairs([]) -> empty;
-
 merge_pairs([SubHeap]) -> SubHeap;
-
 merge_pairs([SH1, SH2 | Rest]) ->
    merge(merge(SH1, SH2), merge_pairs(Rest)).
     
