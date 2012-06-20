@@ -10,7 +10,8 @@ new() -> empty.
 
 find_min(empty) ->
     {error, empty};
-
+find_min({Elem}) ->
+    {ok, Elem};
 find_min({Elem,_SubHeap}) ->
     {ok, Elem}.
     
@@ -25,8 +26,8 @@ merge(Heap1, empty) ->
 merge(empty, Heap2) ->
     Heap2;
 merge(Heap1, Heap2) ->
-    E1 = first(Heap1),
-    E2 = first(Heap2),
+    E1 = element(1, Heap1),
+    E2 = element(1, Heap2),
     if
         E1 < E2 ->
             {E1, [Heap2 | second(Heap1)]};
@@ -34,19 +35,10 @@ merge(Heap1, Heap2) ->
             {E2, [Heap1 | second(Heap2)]}
     end.
 
-first({E1, SH1}) ->
-    E1;
-first(E1) ->
-    E1.
+second({_E, SH}) -> SH;
+second({_E}) -> [].
 
-second({E1, SH1}) ->
-    SH1;
-second(E1) ->
-    [].
-
-delete_min([]) ->
-    {error, empty};
-delete_min({Elem}) ->
+delete_min({_Elem}) ->
     {ok, empty};
 delete_min({_Elem, SubHeaps}) ->
     {ok, merge_pairs(SubHeaps)}.
