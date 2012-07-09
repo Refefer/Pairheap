@@ -1,0 +1,11 @@
+{application, pairheap,
+ [
+  {description, "Heap implementation using a pair heap."},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { pairheap_app, []}}
+ ]}.
