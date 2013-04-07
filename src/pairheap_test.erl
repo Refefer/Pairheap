@@ -7,12 +7,14 @@ make_random_list(N) ->
 pop_all(Heap) ->
     pop_all(Heap, []).
 
-pop_all(empty, Acc) ->
-    lists:reverse(Acc);
 pop_all(Heap, Acc) ->
-    Min = pairheap:find_min(Heap),
-    {ok, NewHeap} = pairheap:delete_min(Heap),
-    pop_all(NewHeap, [Min|Acc]).
+    case pairheap:find_min(Heap) of
+        {ok, Min} ->
+            {ok, NewHeap} = pairheap:delete_min(Heap),
+            pop_all(NewHeap, [Min|Acc]);
+        {error, empty} ->
+            lists:reverse(Acc)
+    end.
 
 pairheap_sorted_test() ->
     List = make_random_list(100),

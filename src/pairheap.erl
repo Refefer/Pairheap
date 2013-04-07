@@ -1,56 +1,73 @@
 -module(pairheap).
 -export([new/0,
+         new/1,
          find_min/1,
          insert/2,
          from_list/1,
+         from_list/2,
          merge/2,
          delete_min/1,
          empty/1]).
 
-new() -> empty.
+-record(heap, {heap, comp}).
 
-find_min(empty) ->
+% Public
+new() -> new(default_comp()).
+new(Comparator) -> #heap{heap=empty, comp=Comparator}.
+
+find_min(#heap{heap=empty}) ->
     {error, empty};
-find_min({Elem}) ->
+find_min(#heap{heap={Elem}}) ->
     {ok, Elem};
-find_min({Elem,_SubHeap}) ->
+find_min(#heap{heap={Elem,_SubHeap}}) ->
     {ok, Elem}.
     
-insert(Heap, Data) ->
-    merge(Heap, {Data}).
+insert(#heap{heap=Heap, comp=Comp}=OldHeap, Data) ->
+    OldHeap#heap{heap=merge_(Heap, {Data}, Comp)}.
 
 from_list(Items) ->
-    lists:foldl(fun(Item, Heap) -> insert(Heap, Item) end, new(), Items).
+    from_list(Items, default_comp()).
 
-merge(Heap1, empty) ->
+from_list(Items, Comparator) ->
+    lists:foldl(fun(Item, Heap) -> 
+                insert(Heap, Item) end, new(Comparator), Items).
+
+merge(#heap{heap=Heap1, comp=Comp}=OldHeap, #heap{heap=Heap2}) ->
+    OldHeap#heap{heap=merge_(Heap1, Heap2, Comp)}.
+
+delete_min(#heap{heap={_Elem}}=OldHeap) ->
+    {ok, OldHeap#heap{heap=empty}};
+delete_min(#heap{heap={_Elem, SubHeaps}, comp=Comp}=OldHeap) ->
+    {ok, OldHeap#heap{heap=merge_pairs(SubHeaps, Comp)}}.
+
+empty(#heap{heap=empty}) ->
+    true;
+empty(#heap{heap=_Other}) ->
+    false.
+
+% Private
+
+default_comp() -> fun(A,B) -> A < B end.
+
+merge_(Heap1, empty, _Comp) ->
     Heap1;
-merge(empty, Heap2) ->
+merge_(empty, Heap2, _Comp) ->
     Heap2;
-merge(Heap1, Heap2) ->
+merge_(Heap1, Heap2, Comp) ->
     E1 = element(1, Heap1),
     E2 = element(1, Heap2),
-    if
-        E1 < E2 ->
-            {E1, [Heap2 | second(Heap1)]};
+    case Comp(E1, E2) of
+        false ->
+            {E2, [Heap1 | second(Heap2)]};
         true ->
-            {E2, [Heap1 | second(Heap2)]}
+            {E1, [Heap2 | second(Heap1)]}
     end.
 
 second({_E, SH}) -> SH;
 second({_E}) -> [].
 
-delete_min({_Elem}) ->
-    {ok, empty};
-delete_min({_Elem, SubHeaps}) ->
-    {ok, merge_pairs(SubHeaps)}.
-
-empty(empty) ->
-    true;
-empty(_Other) ->
-    false.
-
-merge_pairs([]) -> empty;
-merge_pairs([SubHeap]) -> SubHeap;
-merge_pairs([SH1, SH2 | Rest]) ->
-   merge(merge(SH1, SH2), merge_pairs(Rest)).
+merge_pairs([], _Comp) -> empty;
+merge_pairs([SubHeap], _Comp) -> SubHeap;
+merge_pairs([SH1, SH2 | Rest], Comp) ->
+   merge_(merge_(SH1, SH2, Comp), merge_pairs(Rest, Comp), Comp).
     
