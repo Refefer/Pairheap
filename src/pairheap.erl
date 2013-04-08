@@ -35,7 +35,7 @@ from_list(Items, Comparator) ->
 merge(#heap{heap=Heap1, comp=Comp}=OldHeap, #heap{heap=Heap2}) ->
     OldHeap#heap{heap=merge_(Heap1, Heap2, Comp)}.
 
-delete_min(#heap{heap=empty}=OldHeap) ->
+delete_min(#heap{heap=empty}) ->
     {error, empty};
 delete_min(#heap{heap={_Elem}}=OldHeap) ->
     {ok, OldHeap#heap{heap=empty}};
